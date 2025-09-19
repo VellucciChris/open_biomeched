@@ -1,2 +1,2 @@
 # open_biomeched
-An open source python package to use in secondary education biomechanics tutorials. 
+This package hosts a web-app that extracts 2D kinematic data from a video. The app automatically takes the video uploaded and produces an anotated video with the detected landmarks, and a .csv file with the coordinates of 33 landmarks on the body. 
