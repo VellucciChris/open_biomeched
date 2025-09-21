@@ -113,7 +113,7 @@ if uploaded:
 
         cap.set(cv2.CAP_PROP_POS_FRAMES, selected_frame)
         ret, frame = cap.read()
-        cap.release()
+
         if ret: 
             st.image(frame, channels="BGR", caption = f"Frame {selected_frame}")
             st.session_state['paused_frame'] = selected_frame
