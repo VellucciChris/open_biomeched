@@ -8,24 +8,6 @@ import mediapipe as mp
 from typing import Optional 
 from mediapipe.framework.formats import landmark_pb2 as mp_landmark 
 
-import platform, subprocess, sys
-import streamlit as st
-st.write("Python:", sys.version)
-st.write("Platform:", platform.platform())
-
-# What libs are present?
-try:
-    out = subprocess.check_output(["ldconfig", "-p"]).decode()
-    st.code("\n".join([l for l in out.splitlines() if "libGL.so.1" in l or "libGL" in l][:20]))
-except Exception as e:
-    st.write("ldconfig check failed:", e)
-
-# Which OpenCV did we import?
-import cv2, pathlib
-st.write("cv2 file:", pathlib.Path(cv2.__file__).as_posix())
-st.write("OpenCV version:", cv2.__version__)
-
-
 
 def update_slider():
     st.session_state.current_frame = st.session_state.frame
@@ -46,8 +28,6 @@ def pose_row(frame_idx: int, results :Optional[mp_landmark.NormalizedLandmarkLis
         row.extend([np.nan] * (len(pose_columns())-1))
     return row
                 
-
-
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
