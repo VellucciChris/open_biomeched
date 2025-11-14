@@ -27,7 +27,28 @@ def pose_row(frame_idx: int, results :Optional[mp_landmark.NormalizedLandmarkLis
     else: 
         row.extend([np.nan] * (len(pose_columns())-1))
     return row
-                
+
+def calc_joint_angle(point1, point2, point3):
+    """
+    Calculate angle at point2 (the joint)
+    point1, point2, point3: tuples of (x, y) coordinates - point2 is equal to the vertex of the triangle where the angle is measured. 
+    """
+    # Create vectors from joint to adjacent points
+    vec1 = np.array([point1[0] - point2[0], point1[1] - point2[1]])
+    vec2 = np.array([point3[0] - point2[0], point3[1] - point2[1]])
+
+    print(vec1.shape)
+    print(vec2.shape)
+    
+    # Calculate angle
+    dot_prod = np.dot(vec1, vec2)
+    mag1 = np.linalg.norm(vec1)
+    mag2 = np.linalg.norm(vec2)
+    
+    angle = np.arccos(np.clip(dot_prod / (mag1 * mag2), -1.0, 1.0))
+    
+    return np.degrees(angle)
+
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -111,7 +132,7 @@ if uploaded:
 
         cap.set(cv2.CAP_PROP_POS_FRAMES, selected_frame)
         ret, frame = cap.read()
-
+        cap.release()
         if ret: 
             st.image(frame, channels="BGR", caption = f"Frame {selected_frame}")
             st.session_state['paused_frame'] = selected_frame
@@ -149,8 +170,52 @@ if uploaded:
 
             st.image(output,channels="BGR", caption = f"Frame {selected_frame} Pose")
             st.caption("Pose landmarks per frame (x, y, z, visibility for each joint).")
-            columns_to_display = ["LEFT_SHOULDER_x", "LEFT_SHOULDER_y", "RIGHT_SHOULDER_x", "RIGHT_SHOULDER_y", "RIGHT_HIP_x", "RIGHT_HIP_y", "LEFT_HIP_x", "LEFT_HIP_y", "LEFT_KNEE_x", "LEFT_KNEE_y", "RIGHT_KNEE_x", "RIGHT_KNEE_y", "LEFT_ANKLE_x", "LEFT_ANKLE_y", "RIGHT_ANKLE_x","RIGHT_ANKLE_y"]
 
-            st.dataframe(landmark_df[columns_to_display].head(10), use_container_width=True)
+            LSHO = np.array([landmark_df["LEFT_SHOULDER_x"], landmark_df["LEFT_SHOULDER_y"]]).flatten()
+            LHIP = np.array([landmark_df["LEFT_HIP_x"], landmark_df["LEFT_HIP_y"]]).flatten()
+            LKNEE = np.array([landmark_df["LEFT_KNEE_x"], landmark_df["LEFT_KNEE_y"]]).flatten()
+            LANKLE = np.array([landmark_df["LEFT_ANKLE_x"], landmark_df["LEFT_ANKLE_y"]]).flatten()
+            LTOE = np.array([landmark_df["LEFT_FOOT_INDEX_x"], landmark_df["LEFT_FOOT_INDEX_y"]]).flatten()
+
+            RSHO = np.array([landmark_df["RIGHT_SHOULDER_x"], landmark_df["RIGHT_SHOULDER_y"]]).flatten()
+            RHIP = np.array([landmark_df["RIGHT_HIP_x"], landmark_df["RIGHT_HIP_y"]]).flatten()
+            RKNEE = np.array([landmark_df["RIGHT_KNEE_x"], landmark_df["RIGHT_KNEE_y"]]).flatten()
+            RANKLE = np.array([landmark_df["RIGHT_ANKLE_x"], landmark_df["RIGHT_ANKLE_y"]]).flatten()
+            RTOE = np.array([landmark_df["RIGHT_FOOT_INDEX_x"], landmark_df["RIGHT_FOOT_INDEX_y"]]).flatten()
+
+            L_hip_angle= calc_joint_angle(LSHO, LHIP, LKNEE)
+            L_knee_angle = calc_joint_angle(LHIP,LKNEE,LANKLE)
+            L_ankle_angle = calc_joint_angle(LKNEE, LANKLE, LTOE)
+
+            R_hip_angle= calc_joint_angle(RSHO, RHIP, RKNEE)
+            R_knee_angle = calc_joint_angle(RHIP,RKNEE,RANKLE)
+            R_ankle_angle = calc_joint_angle(RKNEE, RANKLE, RTOE)
+
+
+            #columns_to_display = ["LEFT_SHOULDER_x", "LEFT_SHOULDER_y", "RIGHT_SHOULDER_x", "RIGHT_SHOULDER_y", "RIGHT_HIP_x", "RIGHT_HIP_y", "LEFT_HIP_x", "LEFT_HIP_y", "LEFT_KNEE_x", "LEFT_KNEE_y", "RIGHT_KNEE_x", "RIGHT_KNEE_y", "LEFT_ANKLE_x", "LEFT_ANKLE_y", "RIGHT_ANKLE_x","RIGHT_ANKLE_y"]
+
+            #st.dataframe(landmark_df[columns_to_display].head(10), use_container_width=True)
+            colsJA = ["Left Hip", "Left Knee", "Left Ankle"]
+            JA_df = pd.DataFrame({
+                'Joint': ['Hip', 'Knee', 'Ankle'],
+                'Left': [L_hip_angle, L_knee_angle, L_ankle_angle],
+                'Right': [R_hip_angle, R_knee_angle, R_ankle_angle]
+            })
+
+            st.write(f"Frame: {selected_frame} | Time: {selected_frame / fps:.2f}s")
+            st.dataframe(JA_df[['Joint', 'Left', 'Right']].head(10), use_container_width=True)
+
+
+
+
+
 
             
+
+                       
+
+
+
+
+
+               
