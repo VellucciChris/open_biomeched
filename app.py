@@ -76,21 +76,16 @@ with st.container():
         "Upload a video (mp4/mov/avi/mkv)",
         type=["mp4", "mov", "avi", "mkv"],
         accept_multiple_files=False,
-        key = "video_file",
     )
-if uploaded is None and "video_path" not in st.session_state: 
+if uploaded is None: 
     st.info("Upload a video to begin.")
     st.stop()
 
-if uploaded is not None and uploaded.name != st.session_state.get("uploaded_name"):
+if uploaded: 
     # Save a temp file so OpenCv can access it
-    suffix = Path(uploaded.name).suffix
-    with tempfile.NamedTemporaryFile(delete=False, suffix = suffix) as tmp:
+    with tempfile.NamedTemporaryFile(delete=False, suffix = Path(uploaded.name).suffix) as tmp:
         tmp.write(uploaded.read())
-        st.session_state.video_path = tmp.name
-        st.session_state.uploaded_name = uploaded.name
-        
-        video_path = Path(st.session_state.video_path)
+        video_path = Path(tmp.name)
     
     with st.container(): 
         st.header("Step 2 - Watch the Video")
@@ -114,14 +109,11 @@ if uploaded is not None and uploaded.name != st.session_state.get("uploaded_name
         
         # Show Selected Frame 
         # Slider to "select" a frame 
-        st.session_state.current_frame = st.slider(
-            "Select a frame", 
-            min_value = 0, 
-            max_value = total_frames-1, 
-            value = int(st.session_state.current_frame), 
-            key="current_frame",
-            on_change = update_slider,
-        )
+        st.slider("Select a frame", 0, total_frames-1, 
+                   value = int(st.session_state.current_frame), 
+                   key="frame",
+                   on_change = update_slider,
+                   )
         
         col1, col2 = st.columns(2)
 
@@ -129,10 +121,12 @@ if uploaded is not None and uploaded.name != st.session_state.get("uploaded_name
             if st.button("Previous Frame", width = "stretch"):
                 st.session_state.current_frame = max(0, st.session_state.current_frame - 1)
                 st.session_state.playing = False
+                st.rerun()
         with col2: 
             if st.button("Next Frame", width ="stretch"):
                 st.session_state.current_frame = min(total_frames - 1, st.session_state.current_frame + 1)
                 st.session_state.playing = False 
+                st.rerun()
 
         selected_frame = int(st.session_state.current_frame)
 
