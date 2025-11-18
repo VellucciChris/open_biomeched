@@ -126,12 +126,10 @@ if uploaded is not None and uploaded.name != st.session_state.get("uploaded_name
             if st.button("Previous Frame", width = "stretch"):
                 st.session_state.current_frame = max(0, st.session_state.current_frame - 1)
                 st.session_state.playing = False
-                st.rerun()
         with col2: 
             if st.button("Next Frame", width ="stretch"):
                 st.session_state.current_frame = min(total_frames - 1, st.session_state.current_frame + 1)
                 st.session_state.playing = False 
-                st.rerun()
 
         selected_frame = int(st.session_state.current_frame)
 
