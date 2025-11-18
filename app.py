@@ -76,16 +76,21 @@ with st.container():
         "Upload a video (mp4/mov/avi/mkv)",
         type=["mp4", "mov", "avi", "mkv"],
         accept_multiple_files=False,
+        key = "video_file",
     )
-if uploaded is None: 
+if uploaded is None and "video_path" not in st.session_state: 
     st.info("Upload a video to begin.")
     st.stop()
 
-if uploaded: 
+if uploaded is not None and uploaded.name != st.session_state.get("uploaded_name"):
     # Save a temp file so OpenCv can access it
-    with tempfile.NamedTemporaryFile(delete=False, suffix = Path(uploaded.name).suffix) as tmp:
+    suffix = Path(uploaded.name).suffix
+    with tempfile.NamedTemporaryFile(delete=False, suffix = suffix) as tmp:
         tmp.write(uploaded.read())
-        video_path = Path(tmp.name)
+        st.session_state.video_path = tmp.name
+        st.session_state.uploaded_name = uploaded.name
+        
+    video_path = Path(st.session_state.video_path)
     
     with st.container(): 
         st.header("Step 2 - Watch the Video")
