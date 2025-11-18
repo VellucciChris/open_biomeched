@@ -114,11 +114,14 @@ if uploaded is not None and uploaded.name != st.session_state.get("uploaded_name
         
         # Show Selected Frame 
         # Slider to "select" a frame 
-        st.session_state.current_frame = st.slider("Select a frame", min_value = 0, total_frames-1, 
-                   value = int(st.session_state.current_frame), 
-                   key="current_frame",
-                   on_change = update_slider
-                   )
+        st.session_state.current_frame = st.slider(
+            "Select a frame", 
+            min_value = 0, 
+            total_frames-1, 
+            value = int(st.session_state.current_frame), 
+            key="current_frame",
+            on_change = update_slider,
+        )
         
         col1, col2 = st.columns(2)
 
