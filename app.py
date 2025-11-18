@@ -90,7 +90,7 @@ if uploaded is not None and uploaded.name != st.session_state.get("uploaded_name
         st.session_state.video_path = tmp.name
         st.session_state.uploaded_name = uploaded.name
         
-    video_path = Path(st.session_state.video_path)
+        video_path = Path(st.session_state.video_path)
     
     with st.container(): 
         st.header("Step 2 - Watch the Video")
