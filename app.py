@@ -130,12 +130,7 @@ if uploaded:
     video_path = save_uploaded_video(uploaded)
     
     with st.container(): 
-        st.header("Step 2 - Watch the Video")
-        st.video(str(video_path))
-
-    
-    with st.container(): 
-        st.header("Step 3 - Select Frame and Perform Pose Estimation")
+        st.header("Step 2 - Select Frame and Perform Pose Estimation")
 
         # Use cached function to get video properties (only processes once)
         video_props = get_video_properties(video_path)
